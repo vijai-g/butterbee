@@ -1,9 +1,14 @@
-export default function AboutPage(){
+export default function AboutPage() {
   return (
-    <div className="prose max-w-none">
+    <section className="prose max-w-2xl">
       <h1>About ButterBee</h1>
-      <p>We are a home kitchen delivering fresh Breakfasts, Batters, Snacks, Desserts, and Beverages.
-      Everything is prepared daily with quality ingredients. Reach us on WhatsApp to order.</p>
-    </div>
+      <p>
+        We are a small kitchen delivering fresh, homestyle South Indian batters and snacks.
+        Everything is made daily with clean ingredients—no artificial stuff.
+      </p>
+      <p>
+        Order via our website or ping us on WhatsApp. We currently deliver in selected areas of Chennai.
+      </p>
+    </section>
   );
 }

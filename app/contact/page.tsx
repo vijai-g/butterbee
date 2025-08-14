@@ -1,10 +1,11 @@
-export default function ContactPage(){
+export default function ContactPage() {
   return (
-    <div className="prose max-w-none">
+    <section className="prose max-w-2xl">
       <h1>Contact</h1>
-      <p>WhatsApp: <a href="https://wa.me/8825755675?text=Hi%20ButterBee" className="text-primary underline" aria-label="WhatsApp link">8825755675</a></p>
-      <p>Email: hello@butterbee.local</p>
-      <p>We deliver across nearby apartments. Ping us for today&apos;s specials.</p>
-    </div>
+      <p><strong>Phone:</strong> 8825755675</p>
+      <p><strong>WhatsApp:</strong> <a className="underline" href="https://wa.me/8825755675?text=Hi%20ButterBee">Chat with us</a></p>
+      <p><strong>Email:</strong> hello@butterbee.example</p>
+      <p><strong>Hours:</strong> 6 AM – 8 PM</p>
+    </section>
   );
 }

@@ -1,11 +1,33 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-:root{ --color-primary:#FFC107; --color-secondary:#111111; --color-accent:#FFFFFF; }
-html,body{ height:100%; background:#fff; color:#111; scroll-behavior:smooth; }
-.btn{ @apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium border border-secondary; }
-.btn-primary{ @apply bg-primary text-secondary hover:brightness-95 transition; }
-.btn-outline{ @apply bg-white text-secondary hover:bg-gray-50; }
-.card{ @apply rounded-2xl border border-gray-200 shadow-sm bg-white; }
-.container-px{ @apply px-4 md:px-6 lg:px-8; }
-.floating-whatsapp{ position: fixed; right: 1rem; bottom: 1rem; z-index: 50; }
+
+:root {
+  --bg: #ffffff;
+  --text: #111111;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  color: var(--text);
+  background: var(--bg);
+}
+
+.btn {
+  @apply inline-flex items-center justify-center rounded-xl2 px-4 py-2 font-medium transition active:scale-[.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary;
+}
+
+.btn-primary {
+  @apply bg-primary text-secondary hover:opacity-90;
+}
+
+.btn-secondary {
+  @apply bg-secondary text-white hover:opacity-90;
+}
+
+.card {
+  @apply rounded-2xl shadow-soft border border-black/5 bg-white;
+}

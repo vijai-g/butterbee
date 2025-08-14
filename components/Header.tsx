@@ -1,48 +1,80 @@
-'use client';
+"use client";
 import Link from "next/link";
-import Image from "next/image";
-import { useCart } from "@/context/CartContext";
+import { usePathname } from "next/navigation";
+import { useCart } from "@/lib/cart";
 import { useState } from "react";
-export function Header(){
+import clsx from "clsx";
+
+export default function Header() {
   const { count } = useCart();
-  const [open,setOpen] = useState(false);
-  const nav = [
-    {href:"/menu", label:"Menu"},
-    {href:"/cart", label:"Cart"},
-    {href:"/checkout", label:"Checkout"},
-    {href:"/about", label:"About"},
-    {href:"/contact", label:"Contact"},
-  ];
+  const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const NavLink = ({ href, label }: { href: string; label: string }) => (
+    <Link
+      href={href}
+      onClick={() => setMobileOpen(false)}
+      className={clsx(
+        "px-3 py-2 rounded-md text-sm font-medium focus-visible:ring-2 focus-visible:ring-primary",
+        pathname === href ? "bg-primary text-secondary" : "text-secondary hover:bg-black/5"
+      )}
+    >
+      {label}
+    </Link>
+  );
+
   return (
-    <header className="border-b bg-white">
-      <div className="container-px py-4 flex items-center gap-4">
-        <Link href="/" className="flex items-center gap-2" aria-label="Home">
-          <Image src="/logo.svg" width={36} height={36} alt="ButterBee logo"/>
-          <span className="text-2xl font-extrabold">Butter<span className="text-primary">Bee</span></span>
+    <header className="sticky top-0 z-40 bg-white/70 backdrop-blur border-b border-black/5">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+        <Link href="/" className="flex items-center gap-3" aria-label="ButterBee Home">
+          <img src="/logo.svg" alt="ButterBee logo" className="h-8 w-auto" />
         </Link>
-        <button className="md:hidden ml-auto btn" onClick={()=>setOpen(!open)} aria-expanded={open} aria-controls="mainnav">
+
+        {/* Desktop nav */}
+        <nav className="hidden md:flex items-center gap-2">
+          <NavLink href="/" label="Home" />
+          <NavLink href="/menu" label="Menu" />
+          <NavLink href="/cart" label="Cart" />
+          <NavLink href="/checkout" label="Checkout" />
+          <NavLink href="/about" label="About" />
+          <NavLink href="/contact" label="Contact" />
+          <Link href="/cart" className="relative px-3 py-2" aria-label="View cart">
+            <span className="sr-only">Cart</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="10" cy="20.5" r="1.5"/><circle cx="18" cy="20.5" r="1.5"/>
+              <path d="M2 3h3l3.6 12.59c.1.34.42.58.77.58H19a1 1 0 0 0 .96-.74L22 9H6"/>
+            </svg>
+            {count > 0 && (
+              <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-secondary">
+                {count}
+              </span>
+            )}
+          </Link>
+        </nav>
+
+        {/* Mobile hamburger */}
+        <button
+          aria-label="Toggle menu"
+          className="md:hidden btn btn-secondary px-3 py-2"
+          onClick={() => setMobileOpen(v => !v)}
+        >
           ☰
         </button>
-        <nav id="mainnav" className={`ml-auto ${open ? "" : "hidden"} md:block`}>
-          <ul className="flex gap-4 items-center">
-            {nav.map(n => (
-              <li key={n.href}>
-                <Link className="hover:underline" href={n.href}>{n.label}</Link>
-              </li>
-            ))}
-            <li>
-              <Link href="/cart" className="relative btn btn-outline" aria-label="Cart">
-                🛒
-                {count > 0 && (
-                  <span aria-label={`${count} items in cart`} className="absolute -top-2 -right-2 bg-primary text-secondary rounded-full text-xs font-bold px-2 py-0.5">
-                    {count}
-                  </span>
-                )}
-              </Link>
-            </li>
-          </ul>
-        </nav>
       </div>
+
+      {/* Mobile nav drawer */}
+      {mobileOpen && (
+        <div className="md:hidden border-t border-black/5 bg-white">
+          <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-3">
+            <NavLink href="/" label="Home" />
+            <NavLink href="/menu" label="Menu" />
+            <NavLink href="/cart" label="Cart" />
+            <NavLink href="/checkout" label="Checkout" />
+            <NavLink href="/about" label="About" />
+            <NavLink href="/contact" label="Contact" />
+          </div>
+        </div>
+      )}
     </header>
-  )
+  );
 }

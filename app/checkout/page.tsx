@@ -1,50 +1,73 @@
-'use client';
-import { useCart } from "@/context/CartContext";
-import toast from "react-hot-toast";
+"use client";
+import { useCart } from "@/lib/cart";
 import { useState } from "react";
-export default function CheckoutPage(){
-  const { items, total, clear } = useCart();
-  const [form, setForm] = useState({ name:"", phone:"", address:"", email:"", deliverySlot:"" });
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setForm(prev => ({...prev, [e.target.name]: e.target.value }));
-  };
-  const onSubmit = (e: React.FormEvent) => {
+import toast from "react-hot-toast";
+import Link from "next/link";
+
+export default function CheckoutPage() {
+  const { state, total, clear } = useCart();
+  const [form, setForm] = useState({
+    name: "", phone: "", address: "", email: "", deliverySlot: ""
+  });
+
+  const canSubmit = state.items.length > 0 && form.name && form.phone && form.address;
+
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if(items.length === 0){ toast.error("Cart is empty."); return; }
-    toast.success("Order placed! (payment placeholder)");
+    if (!canSubmit) return toast.error("Fill required fields");
+
+    // Placeholder "payment": just confirm + WhatsApp deep link with order summary.
+    const summary = encodeURIComponent(
+      `Order from ButterBee\n` +
+      state.items.map(i => `${i.product.name} x ${i.qty} = ₹${i.qty * i.product.price}`).join("\n") +
+      `\nTotal: ₹${total}\nName: ${form.name}\nPhone: ${form.phone}\nEmail: ${form.email}\nAddress: ${form.address}\nSlot: ${form.deliverySlot}`
+    );
+    const wa = `https://wa.me/8825755675?text=${summary}`;
+    toast.success("Order summary prepared in WhatsApp");
     clear();
+    window.location.href = wa;
   };
+
   return (
-    <div className="grid md:grid-cols-2 gap-8">
-      <form onSubmit={onSubmit} className="space-y-4">
-        <h2 className="text-2xl font-semibold">Checkout</h2>
-        <input required name="name" value={form.name} onChange={handleChange} placeholder="Name" className="w-full border rounded-lg p-3"/>
-        <input required name="phone" value={form.phone} onChange={handleChange} placeholder="Phone" className="w-full border rounded-lg p-3" />
-        <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="Email (optional)" className="w-full border rounded-lg p-3"/>
-        <textarea required name="address" value={form.address} onChange={handleChange} placeholder="Address" className="w-full border rounded-lg p-3 min-h-[120px]" />
-        <select required name="deliverySlot" value={form.deliverySlot} onChange={handleChange} className="w-full border rounded-lg p-3">
-          <option value="" disabled>Choose delivery slot</option>
-          <option>Tomorrow 7-9 AM</option>
-          <option>Tomorrow 5-7 PM</option>
-          <option>Weekend Morning</option>
-        </select>
-        <button className="btn btn-primary" type="submit" aria-label="Place Order">Place Order</button>
-        <p className="text-xs text-gray-600">Payment: placeholder for UPI/PG integration.</p>
-      </form>
-      <div className="space-y-3">
-        <h2 className="text-2xl font-semibold">Order Summary</h2>
-        <ul className="space-y-2">
-        {items.map(it => (
-          <li key={it.id} className="flex justify-between items-center border-b pb-2">
-            <span>{it.name} × {it.quantity}</span>
-            <span>₹{(it.price * it.quantity).toFixed(2)}</span>
-          </li>
-        ))}
-        </ul>
-        <div className="flex justify-between font-semibold text-lg">
-          <span>Total</span><span>₹{total.toFixed(2)}</span>
+    <section>
+      <h1 className="text-3xl font-bold mb-4">Checkout</h1>
+      {state.items.length === 0 && (
+        <p>Your cart is empty. <Link href="/menu" className="underline">Add items</Link>.</p>
+      )}
+      <form className="mt-4 grid gap-4 max-w-xl" onSubmit={submit}>
+        <div>
+          <label className="block text-sm font-medium">Name *</label>
+          <input className="mt-1 w-full rounded-md border px-3 py-2" value={form.name} onChange={(e)=>setForm({...form, name: e.target.value})} required />
         </div>
-      </div>
-    </div>
-  )
+        <div>
+          <label className="block text-sm font-medium">Phone *</label>
+          <input inputMode="tel" className="mt-1 w-full rounded-md border px-3 py-2" value={form.phone} onChange={(e)=>setForm({...form, phone: e.target.value})} required />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Address *</label>
+          <textarea className="mt-1 w-full rounded-md border px-3 py-2" value={form.address} onChange={(e)=>setForm({...form, address: e.target.value})} required />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Email</label>
+          <input type="email" className="mt-1 w-full rounded-md border px-3 py-2" value={form.email} onChange={(e)=>setForm({...form, email: e.target.value})} />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Delivery Slot</label>
+          <select className="mt-1 w-full rounded-md border px-3 py-2" value={form.deliverySlot} onChange={(e)=>setForm({...form, deliverySlot: e.target.value})}>
+            <option value="">Select…</option>
+            <option>6–8 AM</option>
+            <option>8–10 AM</option>
+            <option>5–7 PM</option>
+          </select>
+        </div>
+        <div className="pt-2">
+          <button disabled={!canSubmit} className="btn btn-primary disabled:opacity-50" type="submit">
+            Place Order (WhatsApp)
+          </button>
+        </div>
+        <p className="text-sm text-black/70">Payment: placeholder. You can integrate Razorpay/PhonePe later.</p>
+        <p className="text-sm">Total payable: <span className="font-bold">₹{total}</span></p>
+      </form>
+    </section>
+  );
 }

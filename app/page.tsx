@@ -1,42 +1,25 @@
 import Link from "next/link";
 import Image from "next/image";
-export default function HomePage(){
+
+export default function HomePage() {
   return (
-    <div className="space-y-10">
-      <section className="grid md:grid-cols-2 gap-6 items-center">
-        <div className="space-y-4">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-secondary">
-            Welcome to <span className="text-primary">ButterBee</span>
-          </h1>
-          <p className="text-lg text-gray-700">
-            Fresh homemade goodness. Breakfast, batters, snacks, desserts, and beverages.
-          </p>
-          <div className="flex gap-3">
-            <Link className="btn btn-primary" href="/menu" aria-label="Browse Menu">Browse Menu</Link>
-            <Link className="btn btn-outline" href="/about" aria-label="About ButterBee">About Us</Link>
-          </div>
+    <section className="grid gap-8 md:grid-cols-[1.1fr,0.9fr] items-center">
+      <div>
+        <h1 className="text-4xl md:text-5xl font-extrabold leading-tight">
+          Fresh batters. Honest ingredients. <span className="text-primary">Delivered daily.</span>
+        </h1>
+        <p className="mt-4 text-lg text-black/80">
+          ButterBee brings you stone-ground batters and homestyle snacks—perfect for breakfast,
+          dinner, and everything in between.
+        </p>
+        <div className="mt-6 flex gap-3">
+          <Link href="/menu" className="btn btn-primary">Browse Menu</Link>
+          <Link href="/about" className="btn btn-secondary">About Us</Link>
         </div>
-        <div className="justify-self-center">
-          <Image src="/images/hero.svg" width={480} height={360} alt="ButterBee hero" priority />
-        </div>
-      </section>
-      <section className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[
-          {title:"Breakfast", img:"/images/placeholder-breakfast.svg", href:"/menu?category=Breakfast"},
-          {title:"Batters", img:"/images/placeholder-batters.svg", href:"/menu?category=Batters"},
-          {title:"Snacks", img:"/images/placeholder-snacks.svg", href:"/menu?category=Snacks"},
-        ].map((c)=>(
-          <Link key={c.title} href={c.href} className="card p-6 hover:shadow-md transition" aria-label={`Go to ${c.title}`}>
-            <div className="flex items-center gap-4">
-              <Image src={c.img} width={80} height={80} alt={c.title} />
-              <div>
-                <h3 className="text-xl font-semibold">{c.title}</h3>
-                <p className="text-gray-600">See what&apos;s cooking</p>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </section>
-    </div>
+      </div>
+      <div className="relative aspect-[4/3] w-full">
+        <Image src="/images/item1.svg" alt="Fresh idli batter" fill sizes="(max-width: 768px) 100vw, 50vw" priority />
+      </div>
+    </section>
   );
 }
