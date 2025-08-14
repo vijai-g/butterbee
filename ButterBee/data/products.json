@@ -1,0 +1,109 @@
+[
+  {
+    "id": "bb-001",
+    "name": "Idli (4 pcs)",
+    "description": "Soft steamed idlis with chutney.",
+    "price": 40,
+    "image": "/images/p1.svg",
+    "category": "Breakfast",
+    "tags": [
+      "idli",
+      "breakfast",
+      "south"
+    ],
+    "available": true
+  },
+  {
+    "id": "bb-002",
+    "name": "Dosa",
+    "description": "Crispy dosa with sambar & chutney.",
+    "price": 50,
+    "image": "/images/p2.svg",
+    "category": "Breakfast",
+    "tags": [
+      "dosa",
+      "breakfast"
+    ],
+    "available": true
+  },
+  {
+    "id": "bb-003",
+    "name": "Aapam Batter (1kg)",
+    "description": "Fermented batter for aapam.",
+    "price": 70,
+    "image": "/images/p3.svg",
+    "category": "Batters",
+    "tags": [
+      "aapam",
+      "batter"
+    ],
+    "available": true
+  },
+  {
+    "id": "bb-004",
+    "name": "Idli/Dosa Batter (1kg)",
+    "description": "Perfectly fermented batter.",
+    "price": 60,
+    "image": "/images/p4.svg",
+    "category": "Batters",
+    "tags": [
+      "idli",
+      "dosa",
+      "batter"
+    ],
+    "available": true
+  },
+  {
+    "id": "bb-005",
+    "name": "Medu Vada (4 pcs)",
+    "description": "Crispy outside, soft inside.",
+    "price": 60,
+    "image": "/images/p5.svg",
+    "category": "Snacks",
+    "tags": [
+      "vada",
+      "snack"
+    ],
+    "available": true
+  },
+  {
+    "id": "bb-006",
+    "name": "Mysore Pak",
+    "description": "Rich, ghee-laden sweet.",
+    "price": 80,
+    "image": "/images/p6.svg",
+    "category": "Desserts",
+    "tags": [
+      "sweet",
+      "dessert"
+    ],
+    "available": true
+  },
+  {
+    "id": "bb-007",
+    "name": "Filter Coffee",
+    "description": "Strong South Indian coffee.",
+    "price": 35,
+    "image": "/images/p7.svg",
+    "category": "Beverages",
+    "tags": [
+      "coffee",
+      "beverage"
+    ],
+    "available": true
+  },
+  {
+    "id": "bb-008",
+    "name": "Lemon Juice",
+    "description": "Fresh & zesty lemonade.",
+    "price": 30,
+    "image": "/images/p8.svg",
+    "category": "Beverages",
+    "tags": [
+      "juice",
+      "beverage",
+      "lemon"
+    ],
+    "available": true
+  }
+]
