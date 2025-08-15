@@ -16,7 +16,7 @@ export default function CheckoutPage() {
       state.items.map(i => `${i.product.name} x ${i.qty} = ₹${i.qty * i.product.price}`).join("\n") +
       `\nTotal: ₹${total}\nName: ${form.name}\nPhone: ${form.phone}\nEmail: ${form.email}\nAddress: ${form.address}\nSlot: ${form.deliverySlot}`
     );
-    const wa = `https://wa.me/8825755675?text=${summary}`;
+    const wa = `/api/wa?text=${summary}`;
     toast.success("Order summary prepared in WhatsApp");
     clear();
     window.location.href = wa;
