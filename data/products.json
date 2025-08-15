@@ -1,0 +1,69 @@
+[
+  {
+    "id": "p1",
+    "name": "Idli Batter 1kg",
+    "description": "Stone-ground, soft and fluffy idlis guaranteed.",
+    "price": 85,
+    "image": "/images/item1.svg",
+    "category": "Batters",
+    "tags": [
+      "rice",
+      "breakfast",
+      "south-indian"
+    ],
+    "available": true
+  },
+  {
+    "id": "p2",
+    "name": "Aapam Batter 1kg",
+    "description": "Coconut-infused, perfect lacey aapams.",
+    "price": 90,
+    "image": "/images/item2.svg",
+    "category": "Batters",
+    "tags": [
+      "coconut",
+      "dinner",
+      "south-indian"
+    ],
+    "available": true
+  },
+  {
+    "id": "p3",
+    "name": "Vadai (4 pcs)",
+    "description": "Crispy outside, soft inside. Freshly fried.",
+    "price": 60,
+    "image": "/images/item3.svg",
+    "category": "Snacks",
+    "tags": [
+      "savoury",
+      "tea-time"
+    ],
+    "available": true
+  },
+  {
+    "id": "p4",
+    "name": "Mysore Pak 250g",
+    "description": "Melt-in-mouth ghee sweet, a festive classic.",
+    "price": 120,
+    "image": "/images/item4.svg",
+    "category": "Desserts",
+    "tags": [
+      "sweet",
+      "ghee"
+    ],
+    "available": true
+  },
+  {
+    "id": "p5",
+    "name": "Sweet Lassi 300ml",
+    "description": "Chilled curd drink with a hint of cardamom.",
+    "price": 50,
+    "image": "/images/item5.svg",
+    "category": "Beverages",
+    "tags": [
+      "drink",
+      "summer"
+    ],
+    "available": true
+  }
+]
