@@ -4,7 +4,7 @@
     "name": "Idli Batter 1kg",
     "description": "Stone-ground, soft and fluffy idlis guaranteed.",
     "price": 85,
-    "image": "/images/item1.svg",
+    "image": "/images/item1.png",
     "category": "Batters",
     "tags": [
       "rice",
@@ -18,7 +18,7 @@
     "name": "Aapam Batter 1kg",
     "description": "Coconut-infused, perfect lacey aapams.",
     "price": 90,
-    "image": "/images/item2.svg",
+    "image": "/images/item2.png",
     "category": "Batters",
     "tags": [
       "coconut",
@@ -32,7 +32,7 @@
     "name": "Vadai (4 pcs)",
     "description": "Crispy outside, soft inside. Freshly fried.",
     "price": 60,
-    "image": "/images/item3.svg",
+    "image": "/images/item3.png",
     "category": "Snacks",
     "tags": [
       "savoury",
@@ -58,7 +58,7 @@
     "name": "Sweet Lassi 300ml",
     "description": "Chilled curd drink with a hint of cardamom.",
     "price": 50,
-    "image": "/images/item5.svg",
+    "image": "/images/item5.png",
     "category": "Beverages",
     "tags": [
       "drink",
