@@ -5,6 +5,6 @@ export type Product = {
   price: number;
   image: string;
   category: string;
-  tags: string[];
+  tags?: string[];
   available: boolean;
 };
