@@ -1,18 +1,16 @@
-import { getAllProducts, getCategories } from "@/app/_data";
-import MenuClient from "../menu/MenuClient"; // reuse the same client
+import { Suspense } from "react";
+import ShopClient from "./ShopClient";
+import { getAllProducts } from "@/app/_data";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0; // don't prerender; let client read searchParams
 
 export default async function ShopPage() {
-  const [products, categories] = await Promise.all([
-    getAllProducts(),   // includes sold-out
-    getCategories(),
-  ]);
-
+  // fallback list in case the client hasn't fetched yet
+  const products = await getAllProducts({ availableOnly: true });
   return (
-    <MenuClient
-      initialProducts={products}
-      initialCategories={categories}
-    />
+    <Suspense fallback={<div className="p-6">Loading…</div>}>
+      <ShopClient initialProducts={products} />
+    </Suspense>
   );
 }

@@ -11,13 +11,19 @@ export const dynamic = "force-dynamic";
 
 /* ---------- helpers ---------- */
 const DeptValues = Object.values(Department) as Department[];
+
 function toDepartment(s: string | null | undefined): Department | undefined {
   if (!s) return undefined;
   const t = s.trim().toUpperCase();
+
+  // already a valid enum value?
   if ((DeptValues as string[]).includes(t)) return t as Department;
-  if (["FOODS"].includes(t)) return "FOOD";
-  if (["CLOTHING", "APPAREL"].includes(t)) return "CLOTHES";
-  if (["SPORT", "GEAR"].includes(t)) return "SPORTS";
+
+  // common synonyms
+  if (t === "FOODS") return Department.FOOD;
+  if (t === "CLOTHING" || t === "APPAREL") return Department.CLOTHES;
+  if (t === "SPORT" || t === "GEAR") return Department.SPORTS;
+
   return undefined;
 }
 
@@ -27,11 +33,11 @@ const ProductSchema = z.object({
   price: z.coerce.number().int().nonnegative(),
   image: z.string().min(1),
   category: z.string().min(1),
-  // accept strings like "food" and coerce to enum; default FOOD
-  department: z
-    .preprocess((v) => (typeof v === "string" ? toDepartment(v) ?? "FOOD" : v),
-      z.nativeEnum(Department))
-    .default("FOOD"),
+  // Accept strings like "food" and coerce to enum; default FOOD
+  department: z.preprocess(
+    (v) => (typeof v === "string" ? toDepartment(v) ?? Department.FOOD : v),
+    z.nativeEnum(Department)
+  ).default(Department.FOOD),
   available: z.boolean().optional().default(true),
 });
 
