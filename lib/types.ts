@@ -4,7 +4,7 @@ export type Product = {
   description: string;
   price: number;
   image: string;
-  category: "Breakfast" | "Batters" | "Snacks" | "Desserts" | "Beverages" | string;
-  tags: string[];
+  category: string;
+  tags?: string[];
   available: boolean;
 };

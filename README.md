@@ -1,56 +1,53 @@
-# ButterBee (Next.js + TypeScript + Tailwind)
+# ButterBee (Next.js + TypeScript + Tailwind) — Polished
 
-Yellow-themed takeaway site with cart, search, category filters, and WhatsApp checkout.
+Includes:
+- Proper metadata (canonical, OG/Twitter, icons)
+- JSON‑LD (FoodEstablishment)
+- Friendly 404 & error pages
+- robots with preview safety
+- sitemap with canonical URLs
+- Security headers
+- Client-only providers to avoid Server/Client mixups
+- Cart, search, category filters, WhatsApp checkout
 
-## Run locally
-
+## Local dev
 ```bash
-# 1) Install deps
+nvm use 20
 npm i
-
-# 2) Start dev
 npm run dev
+```
+Set your canonical domain in `.env.local`.
 
-# 3) Build for prod
+## Build
+```bash
 npm run build && npm start
 ```
 
-## Project highlights
+## Deploy (Vercel)
+- Framework: Next.js
+- Root: this folder
+- Add domain/subdomain in Project → Settings → Domains
+- GoDaddy: CNAME `butterbee` → `cname.vercel-dns.com`
 
-- Next.js App Router + TypeScript
-- Tailwind CSS (brand colors in `tailwind.config.ts`)
-- Components: Header, Footer, ProductCard, FloatingWhatsApp, CategoryFilter
-- Cart with badge + localStorage persistence (see `lib/cart.tsx`)
-- Search + Category filter on Menu
-- Toast notifications via `react-hot-toast`
-- SEO metadata in `app/layout.tsx`
-- Products in `data/products.json`
-- Public images under `public/images`
 
-## Deploy to Vercel
+## Auth + Neon (added)
+- Run `npm i`
+- `npx prisma migrate dev --name init` (or `npx prisma db push`)
+- `node scripts/make-users.mjs`
+- Set envs on Vercel and use `npm run vercel-build`
 
-1. Create a GitHub repo and push this project.
-2. In Vercel, **New Project** → import your repo.
-3. Framework preset: **Next.js**. Keep default build command (`next build`) & output.
-4. Deploy.
 
-### Connect your GoDaddy domain
+## Environment variables
+Create `.env.local` (or copy `.env.example`):
 
-1. In Vercel: **Settings → Domains → Add** your domain (e.g., `butterbee.in`).
-2. Vercel will show DNS records. For GoDaddy:
-   - Create an **A** record for `@` pointing to Vercel's apex IPs shown.
-   - Or use a **CNAME** for `www` → `cname.vercel-dns.com.`
-3. Wait for DNS to propagate. Vercel will auto-issue SSL.
+```
+DATABASE_URL=postgresql://USER:PASSWORD@HOST/DB?sslmode=require
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=...long random string...
+GOOGLE_CLIENT_ID=...apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=...
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+WA_PHONE=8825755675
+```
 
-> Tip: If you want root (apex) and `www` both working, set the apex with A records and `www` with CNAME.
-
-## Customize
-
-- Update WhatsApp number from `components/FloatingWhatsApp.tsx` and in `app/checkout/page.tsx`.
-- Add/modify products at `data/products.json` (fields: id, name, description, price, image, category, tags, available).
-- Replace `public/logo.svg` and `public/favicon.svg` with your own assets.
-- Edit brand colors in `tailwind.config.ts`.
-
-## Future payments
-
-Replace the placeholder flow in `app/checkout/page.tsx` with Razorpay/PhonePe buttons or serverless functions for UPI links.
+On Vercel, set the same keys in **Project → Settings → Environment Variables**.

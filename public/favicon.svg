@@ -1,8 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="12" fill="#FFC107"/>
-  <g transform="translate(8,10)" fill="#111111">
-    <circle cx="12" cy="12" r="8"/>
-    <rect x="2" y="10" width="20" height="6" rx="3"/>
-    <path d="M22 12c8 0 14 6 14 14h-6c0-4-4-8-8-8v-6z"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ButterBee favicon (SVG). Square, high-contrast, legible at 16–32px. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="title desc" shape-rendering="geometricPrecision">
+  <title id="title">ButterBee favicon</title>
+  <desc id="desc">Rounded yellow tile with a simple black bee and white wing.</desc>
+  <!-- Brand tile -->
+  <rect x="2" y="2" width="60" height="60" rx="12" fill="#FFC107"/>
+  <!-- Bee group -->
+  <g transform="translate(12,16)" stroke="#111111" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Wing (slight opacity so it reads on yellow) -->
+    <ellipse cx="22" cy="8" rx="9" ry="6" fill="#FFFFFF" fill-opacity="0.95" stroke="#111111" stroke-width="2"/>
+    <!-- Head -->
+    <circle cx="14" cy="18" r="6" fill="#111111" stroke="none"/>
+    <!-- Antenna -->
+    <path d="M10 13 C9 10, 11 8, 13 8" fill="none" stroke="#111111" stroke-width="2"/>
+    <!-- Body -->
+    <ellipse cx="28" cy="20" rx="14" ry="10" fill="#FFC107" stroke="#111111" stroke-width="2.5"/>
+    <!-- Stripes (thick for small sizes) -->
+    <path d="M18 16 h20" stroke="#111111" stroke-width="3"/>
+    <path d="M18 20 h20" stroke="#111111" stroke-width="3"/>
+    <path d="M18 24 h20" stroke="#111111" stroke-width="3"/>
+    <!-- Stinger -->
+    <path d="M42 20 l6 3 l-6 3 z" fill="#111111" stroke="none"/>
   </g>
 </svg>
