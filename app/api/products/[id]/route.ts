@@ -4,14 +4,23 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { Department } from "@prisma/client";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const IdSchema = z.object({ id: z.string().min(1) });
 
-const DeptEnum = z.enum(["FOOD","CLOTHES","SPORTS"]);
-
+const DeptValues = Object.values(Department) as Department[];
+function toDepartment(s: string | null | undefined): Department | undefined {
+  if (!s) return undefined;
+  const t = s.trim().toUpperCase();
+  if ((DeptValues as string[]).includes(t)) return t as Department;
+  if (["FOODS"].includes(t)) return "FOOD";
+  if (["CLOTHING", "APPAREL"].includes(t)) return "CLOTHES";
+  if (["SPORT", "GEAR"].includes(t)) return "SPORTS";
+  return undefined;
+}
 
 const UpdateSchema = z.object({
   name: z.string().min(2).max(120).optional(),
@@ -19,12 +28,14 @@ const UpdateSchema = z.object({
   price: z.coerce.number().int().nonnegative().optional(),
   image: z.string().min(1).optional(),
   category: z.string().min(1).optional(),
-  department: DeptEnum.optional(),       // NEW
+  department: z
+    .preprocess((v) => (typeof v === "string" ? toDepartment(v) : v),
+      z.nativeEnum(Department))
+    .optional(),
   available: z.boolean().optional(),
 });
 
-
-// --- image helpers (allow external + data URLs) ---
+// image helpers
 const isExternal  = (s: string) => /^https?:\/\//i.test(s);
 const isLocalPath = (s: string) => s.startsWith("/images/");
 const isDataURL   = (s: string) => /^data:/i.test(s);
@@ -32,7 +43,6 @@ const normalizeImage = (s: string) => {
   const t = s.trim();
   if (!t) return t;
   if (isExternal(t) || isLocalPath(t) || isDataURL(t)) return t;
-  // bare filename like "foo.jpg" -> "/images/foo.jpg"
   return `/images/${t.replace(/^\/+/, "")}`;
 };
 
@@ -47,13 +57,11 @@ export async function PUT(req: Request, ctx: { params: { id: string } }) {
     const session = await getServerSession(authOptions);
     requireAdmin(session);
 
-    // validate id
     const idParsed = IdSchema.safeParse(ctx.params);
     if (!idParsed.success) {
       return NextResponse.json({ error: "INVALID_ID" }, { status: 400 });
     }
 
-    // validate body
     const body = await req.json();
     const parsed = UpdateSchema.safeParse(body);
     if (!parsed.success) {
@@ -87,7 +95,7 @@ export async function PUT(req: Request, ctx: { params: { id: string } }) {
     if (e?.message === "FORBIDDEN") {
       return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
     }
-    console.error("[products:PUT] failed"); // minimal log
+    console.error("[products:PUT] failed");
     return NextResponse.json({ error: "INTERNAL" }, { status: 500 });
   }
 }
@@ -114,7 +122,7 @@ export async function DELETE(_req: Request, ctx: { params: { id: string } }) {
     if (e?.message === "FORBIDDEN") {
       return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
     }
-    console.error("[products:DELETE] failed"); // minimal log
+    console.error("[products:DELETE] failed");
     return NextResponse.json({ error: "INTERNAL" }, { status: 500 });
   }
 }

@@ -3,18 +3,22 @@
 import useSWR from "swr";
 import { useMemo, useState, useRef } from "react";
 
-// ----------------- types & helpers -----------------
+/* ----------------- types & helpers ----------------- */
 type Product = {
   id: string;
   name: string;
   description: string;
   price: number;
-  image: string;        // can be /images/foo.jpg, https://..., or data:<...>
+  image: string;   // /images/foo.jpg, https://..., or data:<...>
   category: string;
   available: boolean;
   createdAt?: string;
   updatedAt?: string;
+  // department might exist in your DB; we keep it optional here:
+  department?: "FOOD" | "CLOTHES" | "SPORTS";
 };
+
+type Department = "FOOD" | "CLOTHES" | "SPORTS";
 
 const fetcher = (u: string) => fetch(u).then((r) => r.json());
 
@@ -26,6 +30,7 @@ type FormState = {
   image: string;
   category: string;
   available: boolean;
+  department: Department; // <-- added
 };
 
 const emptyForm: FormState = {
@@ -35,6 +40,7 @@ const emptyForm: FormState = {
   image: "",
   category: "misc",
   available: true,
+  department: "FOOD", // <-- default
 };
 
 // images present under /public/images (adjust to your repo)
@@ -47,7 +53,7 @@ const LIBRARY = [
   "item5.png",
 ];
 
-// ----------------- component -----------------
+/* ----------------- component ----------------- */
 export default function AdminDashboard() {
   const { data, mutate, isLoading } = useSWR<Product[]>("/api/products", fetcher);
   const products = useMemo(() => data ?? [], [data]);
@@ -79,6 +85,7 @@ export default function AdminDashboard() {
       image: p.image.startsWith("/images/") ? p.image.replace("/images/", "") : p.image,
       category: p.category,
       available: p.available,
+      department: p.department ?? "FOOD", // <-- preserve if present, else default
     });
   }
 
@@ -116,6 +123,7 @@ export default function AdminDashboard() {
       image: form.image.trim(),
       category: form.category.trim() || "misc",
       available: form.available,
+      department: form.department, // <-- included (safe even if API ignores it)
     };
 
     if (!payload.name || !payload.description || Number.isNaN(payload.price) || !payload.image) {
@@ -168,7 +176,6 @@ export default function AdminDashboard() {
         {products.map((p) => (
           <div key={p.id} className="card space-y-2 p-4">
             <div className="relative h-40 w-full overflow-hidden rounded-xl bg-neutral-100 dark:bg-neutral-800">
-              {/* simple img is fine here */}
               <img
                 src={p.image}
                 alt={p.name}
@@ -252,15 +259,16 @@ export default function AdminDashboard() {
               <span className="block mb-1">Department</span>
               <select
                 className="w-full rounded-md border px-3 py-2"
-                value={form.department ?? "FOOD"}
-                onChange={(e) => setForm(f => ({ ...f, department: e.target.value as any }))}
+                value={form.department}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, department: e.target.value as Department }))
+                }
               >
                 <option value="FOOD">Food</option>
                 <option value="CLOTHES">Clothes</option>
                 <option value="SPORTS">Sports</option>
               </select>
             </label>
-
 
             <label className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
               Description
@@ -317,8 +325,9 @@ export default function AdminDashboard() {
                         key={fn}
                         type="button"
                         onClick={() => setForm((s) => ({ ...s, image: fn }))}
-                        className={`overflow-hidden rounded-lg border ${selected ? "border-primary ring-2 ring-primary/60" : "border-transparent"
-                          }`}
+                        className={`overflow-hidden rounded-lg border ${
+                          selected ? "border-primary ring-2 ring-primary/60" : "border-transparent"
+                        }`}
                         title={fn}
                       >
                         <img

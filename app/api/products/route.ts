@@ -4,35 +4,34 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { Department } from "@prisma/client";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /* ---------- helpers ---------- */
-const DeptEnum = z.enum(["FOOD", "CLOTHES", "SPORTS"]);
-const toDept = (s: string | null) => {
-  switch ((s ?? "").toLowerCase()) {
-    case "food":
-    case "foods":
-      return "FOOD";
-    case "clothes":
-    case "clothing":
-      return "CLOTHES";
-    case "sports":
-    case "sport":
-      return "SPORTS";
-    default:
-      return undefined;
-  }
-};
+const DeptValues = Object.values(Department) as Department[];
+function toDepartment(s: string | null | undefined): Department | undefined {
+  if (!s) return undefined;
+  const t = s.trim().toUpperCase();
+  if ((DeptValues as string[]).includes(t)) return t as Department;
+  if (["FOODS"].includes(t)) return "FOOD";
+  if (["CLOTHING", "APPAREL"].includes(t)) return "CLOTHES";
+  if (["SPORT", "GEAR"].includes(t)) return "SPORTS";
+  return undefined;
+}
 
 const ProductSchema = z.object({
   name: z.string().min(2).max(120),
   description: z.string().min(2).max(2000),
   price: z.coerce.number().int().nonnegative(),
-  image: z.string().min(1), // /images/foo.jpg, foo.jpg, https://..., or data:...
+  image: z.string().min(1),
   category: z.string().min(1),
-  department: DeptEnum.optional().default("FOOD"), // NEW
+  // accept strings like "food" and coerce to enum; default FOOD
+  department: z
+    .preprocess((v) => (typeof v === "string" ? toDepartment(v) ?? "FOOD" : v),
+      z.nativeEnum(Department))
+    .default("FOOD"),
   available: z.boolean().optional().default(true),
 });
 
@@ -60,7 +59,11 @@ export async function GET(req: Request) {
   const avail = searchParams.get("available");
   const category = searchParams.get("category") ?? undefined;
   const q = searchParams.get("q")?.trim();
-  const dept = toDept(searchParams.get("dept"));
+
+  // accept ?department=Food or ?dept=Food (case-insensitive, synonyms)
+  const dept =
+    toDepartment(searchParams.get("department")) ??
+    toDepartment(searchParams.get("dept"));
 
   const where: any = {};
   if (avail === "true") where.available = true;
@@ -101,7 +104,10 @@ export async function POST(req: Request) {
     }
 
     const created = await prisma.product.create({
-      data: { ...parsed.data, image: normalizeImage(parsed.data.image) },
+      data: {
+        ...parsed.data,
+        image: normalizeImage(parsed.data.image),
+      },
     });
 
     return NextResponse.json(created, { status: 201 });
