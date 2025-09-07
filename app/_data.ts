@@ -1,10 +1,12 @@
 // app/_data.ts
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import type { Department } from "@prisma/client";
 
-export type Dept = "FOOD" | "CLOTHES" | "SPORTS";
-
-export async function getAllProducts(opts?: { availableOnly?: boolean; department?: Dept }) {
+export async function getAllProducts(opts?: {
+  availableOnly?: boolean;
+  department?: Department;
+}) {
   const where: any = {};
   if (opts?.availableOnly) where.available = true;
   if (opts?.department) where.department = opts.department;
@@ -15,14 +17,10 @@ export async function getAllProducts(opts?: { availableOnly?: boolean; departmen
   });
 }
 
-export async function getCategories(opts?: { department?: Dept }) {
-  const where: any = { available: true };
-  if (opts?.department) where.department = opts.department;
-
+export async function getCategories() {
   const rows = await prisma.product.findMany({
-    where,
+    where: { available: true },
     select: { category: true },
   });
-
   return Array.from(new Set(rows.map((r) => r.category))).sort();
 }
