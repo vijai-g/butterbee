@@ -1,5 +1,5 @@
+// app/shop/ShopClient.tsx
 "use client";
-
 import useSWR from "swr";
 import { useMemo, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
@@ -19,7 +19,7 @@ type Product = {
 
 const fetcher = (u: string) => fetch(u).then(r => r.json());
 
-// robust parser (trim + aliases)
+// ✅ Trim + robust aliases
 function normalizeDepartment(raw: string | null): Department | null {
   const n = (raw ?? "").trim().toLowerCase();
   if (n === "food" || n === "foods") return "FOOD";
@@ -30,24 +30,22 @@ function normalizeDepartment(raw: string | null): Department | null {
 
 export default function ShopClient({ initialProducts = [] as Product[] }) {
   const sp = useSearchParams();
-
   // accept both ?department= and ?dept=
   const deptParam = sp.get("department") ?? sp.get("dept");
   const dept = normalizeDepartment(deptParam);
 
-  // IMPORTANT: include dept in the SWR key so it actually fetches the filtered list
+  // Include dept in key so SWR fetches the filtered list
   const key = dept ? `/api/products?dept=${dept}` : "/api/products";
   const { data } = useSWR<Product[]>(key, fetcher, { fallbackData: initialProducts });
   const products = data ?? [];
 
-  // chips from returned products
   const categories = useMemo(
     () => ["All", ...Array.from(new Set(products.map(p => p.category))).sort()],
     [products]
   );
 
   const [active, setActive] = useState("All");
-  useEffect(() => setActive("All"), [key]); // reset when department changes
+  useEffect(() => setActive("All"), [key]);
 
   const [q, setQ] = useState("");
 
