@@ -43,20 +43,27 @@ const emptyForm: FormState = {
   department: "FOOD",
 };
 
-const { data: libResp } = useSWR<{ files: string[] }>("/api/images", fetcher);
-const LIBRARY = libResp?.files ?? [
-  "butterBeeHome.jpeg",
-  "batter.png",
-  "batter2.png",
-  "item3.png",
-  "item4.svg",
-  "item5.png",
-];
-
 /* ----------------- component ----------------- */
 export default function AdminDashboard() {
+  // products
   const { data, mutate, isLoading } = useSWR<Product[]>("/api/products", fetcher);
   const products = useMemo(() => data ?? [], [data]);
+
+  // discover /public/images via API
+  const { data: libResp } = useSWR<{ files: string[] }>("/api/images", fetcher);
+  const LIBRARY = useMemo(
+    () =>
+      (libResp?.files ?? [
+        // fallback list if API not available
+        "butterBeeHome.jpeg",
+        "batter.png",
+        "batter2.png",
+        "item3.png",
+        "item4.svg",
+        "item5.png",
+      ]).sort(),
+    [libResp]
+  );
 
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"create" | "edit">("create");
@@ -84,14 +91,22 @@ export default function AdminDashboard() {
     if (!el) return;
     const step = Math.max(240, Math.floor(el.clientWidth * 0.8));
     el.scrollBy({ left: dir * step, behavior: "smooth" });
+    // after the scroll animation, recompute arrow state
+    window.setTimeout(calcLibArrows, 260);
   }
 
+  // recalc on modal open, tab change, library load, and window resize
   useEffect(() => {
-    // recalc whenever modal opens or mode switches
     if (!open) return;
-    const t = setTimeout(calcLibArrows, 0);
-    return () => clearTimeout(t);
-  }, [open, imgMode]);
+    const onResize = () => calcLibArrows();
+    window.addEventListener("resize", onResize);
+    // next tick so the modal layout exists
+    const t = window.setTimeout(calcLibArrows, 0);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      window.clearTimeout(t);
+    };
+  }, [open, imgMode, LIBRARY.length]);
 
   function onAdd() {
     setMode("create");
@@ -345,6 +360,9 @@ export default function AdminDashboard() {
                       [scrollbar-width:none] [&::-webkit-scrollbar]:hidden
                     "
                   >
+                    {LIBRARY.length === 0 && (
+                      <div className="px-3 py-6 text-sm text-neutral-500">No images found in /public/images</div>
+                    )}
                     {LIBRARY.map((fn) => {
                       const src = `/images/${fn}`;
                       const selected =
