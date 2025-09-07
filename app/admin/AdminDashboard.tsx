@@ -43,8 +43,8 @@ const emptyForm: FormState = {
   department: "FOOD",
 };
 
-// images under /public/images
-const LIBRARY = [
+const { data: libResp } = useSWR<{ files: string[] }>("/api/images", fetcher);
+const LIBRARY = libResp?.files ?? [
   "butterBeeHome.jpeg",
   "batter.png",
   "batter2.png",
