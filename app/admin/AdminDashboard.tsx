@@ -1,7 +1,8 @@
+// app/admin/AdminDashboard.tsx
 "use client";
 
 import useSWR from "swr";
-import { useMemo, useState, useRef } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 
 /* ----------------- types & helpers ----------------- */
 type Product = {
@@ -14,7 +15,6 @@ type Product = {
   available: boolean;
   createdAt?: string;
   updatedAt?: string;
-  // department might exist in your DB; we keep it optional here:
   department?: "FOOD" | "CLOTHES" | "SPORTS";
 };
 
@@ -30,7 +30,7 @@ type FormState = {
   image: string;
   category: string;
   available: boolean;
-  department: Department; // <-- added
+  department: Department;
 };
 
 const emptyForm: FormState = {
@@ -40,10 +40,10 @@ const emptyForm: FormState = {
   image: "",
   category: "misc",
   available: true,
-  department: "FOOD", // <-- default
+  department: "FOOD",
 };
 
-// images present under /public/images (adjust to your repo)
+// images under /public/images
 const LIBRARY = [
   "butterBeeHome.jpeg",
   "batter.png",
@@ -63,7 +63,35 @@ export default function AdminDashboard() {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [imgMode, setImgMode] = useState<"library" | "url" | "upload">("library");
+
   const fileRef = useRef<HTMLInputElement | null>(null);
+
+  // --- image library scroller refs/state ---
+  const libRef = useRef<HTMLDivElement | null>(null);
+  const [canLeft, setCanLeft] = useState(false);
+  const [canRight, setCanRight] = useState(false);
+
+  function calcLibArrows() {
+    const el = libRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanLeft(scrollLeft > 4);
+    setCanRight(scrollLeft + clientWidth < scrollWidth - 4);
+  }
+
+  function scrollLib(dir: -1 | 1) {
+    const el = libRef.current;
+    if (!el) return;
+    const step = Math.max(240, Math.floor(el.clientWidth * 0.8));
+    el.scrollBy({ left: dir * step, behavior: "smooth" });
+  }
+
+  useEffect(() => {
+    // recalc whenever modal opens or mode switches
+    if (!open) return;
+    const t = setTimeout(calcLibArrows, 0);
+    return () => clearTimeout(t);
+  }, [open, imgMode]);
 
   function onAdd() {
     setMode("create");
@@ -81,11 +109,10 @@ export default function AdminDashboard() {
       name: p.name,
       price: String(p.price),
       description: p.description,
-      // allow both /images/foo and full URLs
       image: p.image.startsWith("/images/") ? p.image.replace("/images/", "") : p.image,
       category: p.category,
       available: p.available,
-      department: p.department ?? "FOOD", // <-- preserve if present, else default
+      department: p.department ?? "FOOD",
     });
   }
 
@@ -103,19 +130,16 @@ export default function AdminDashboard() {
     }
   }
 
-  // Read local file -> data URL (kept in the image textbox)
+  // local file -> data URL
   async function onPickFile(f?: File | null) {
     if (!f) return;
     const reader = new FileReader();
-    reader.onload = () => {
-      setForm((s) => ({ ...s, image: String(reader.result ?? "") }));
-    };
+    reader.onload = () => setForm((s) => ({ ...s, image: String(reader.result ?? "") }));
     reader.readAsDataURL(f);
   }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-
     const payload = {
       name: form.name.trim(),
       description: form.description.trim(),
@@ -123,14 +147,12 @@ export default function AdminDashboard() {
       image: form.image.trim(),
       category: form.category.trim() || "misc",
       available: form.available,
-      department: form.department, // <-- included (safe even if API ignores it)
+      department: form.department,
     };
-
     if (!payload.name || !payload.description || Number.isNaN(payload.price) || !payload.image) {
       alert("Name, description, price and image are required");
       return;
     }
-
     setSaving(true);
     try {
       const res = await fetch(mode === "create" ? "/api/products" : `/api/products/${form.id}`, {
@@ -151,17 +173,17 @@ export default function AdminDashboard() {
     }
   }
 
-  // what the preview should show
+  // preview src
   const previewSrc =
     !form.image
       ? ""
       : form.image.startsWith("http")
-        ? form.image
-        : form.image.startsWith("data:")
-          ? form.image
-          : form.image.startsWith("/images/")
-            ? form.image
-            : `/images/${form.image}`;
+      ? form.image
+      : form.image.startsWith("data:")
+      ? form.image
+      : form.image.startsWith("/images/")
+      ? form.image
+      : `/images/${form.image}`;
 
   return (
     <div className="space-y-6">
@@ -209,7 +231,7 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="text-xs text-neutral-500 dark:text-neutral-400 break-all">
+            <div className="break-all text-xs text-neutral-500 dark:text-neutral-400">
               img: {p.image}
             </div>
           </div>
@@ -221,7 +243,8 @@ export default function AdminDashboard() {
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-3">
           <form
             onSubmit={onSubmit}
-            className="w-[min(680px,96vw)] space-y-4 rounded-2xl bg-white p-6 text-neutral-900 shadow-xl
+            className="w-[min(680px,96vw)] max-h-[90vh] overflow-y-auto
+                       space-y-4 rounded-2xl bg-white p-6 text-neutral-900 shadow-xl
                        dark:bg-neutral-900 dark:text-neutral-100"
           >
             <h3 className="text-lg font-semibold">
@@ -256,13 +279,11 @@ export default function AdminDashboard() {
             </label>
 
             <label className="text-sm">
-              <span className="block mb-1">Department</span>
+              <span className="mb-1 block">Department</span>
               <select
                 className="w-full rounded-md border px-3 py-2"
                 value={form.department}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, department: e.target.value as Department }))
-                }
+                onChange={(e) => setForm((f) => ({ ...f, department: e.target.value as Department }))}
               >
                 <option value="FOOD">Food</option>
                 <option value="CLOTHES">Clothes</option>
@@ -313,32 +334,63 @@ export default function AdminDashboard() {
               </div>
 
               {imgMode === "library" && (
-                <div className="grid grid-cols-3 gap-2 rounded-xl border border-neutral-200 p-2 dark:border-neutral-700">
-                  {LIBRARY.map((fn) => {
-                    const src = `/images/${fn}`;
-                    const selected =
-                      form.image === fn ||
-                      form.image === src ||
-                      form.image === `/${fn}`;
-                    return (
-                      <button
-                        key={fn}
-                        type="button"
-                        onClick={() => setForm((s) => ({ ...s, image: fn }))}
-                        className={`overflow-hidden rounded-lg border ${
-                          selected ? "border-primary ring-2 ring-primary/60" : "border-transparent"
-                        }`}
-                        title={fn}
-                      >
-                        <img
-                          src={src}
-                          alt={fn}
-                          className="h-24 w-full object-cover"
-                          loading="lazy"
-                        />
-                      </button>
-                    );
-                  })}
+                <div className="relative">
+                  {/* scroller */}
+                  <div
+                    ref={libRef}
+                    onScroll={calcLibArrows}
+                    className="
+                      flex gap-2 overflow-x-auto rounded-xl border border-neutral-200 p-2
+                      scroll-smooth dark:border-neutral-700
+                      [scrollbar-width:none] [&::-webkit-scrollbar]:hidden
+                    "
+                  >
+                    {LIBRARY.map((fn) => {
+                      const src = `/images/${fn}`;
+                      const selected =
+                        form.image === fn || form.image === src || form.image === `/${fn}`;
+                      return (
+                        <button
+                          key={fn}
+                          type="button"
+                          onClick={() => setForm((s) => ({ ...s, image: fn }))}
+                          className={`h-28 w-40 shrink-0 overflow-hidden rounded-lg border ${
+                            selected ? "border-primary ring-2 ring-primary/60" : "border-transparent"
+                          }`}
+                          title={fn}
+                        >
+                          <img
+                            src={src}
+                            alt={fn}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* left/right chevrons */}
+                  <button
+                    type="button"
+                    aria-label="Scroll left"
+                    onClick={() => scrollLib(-1)}
+                    disabled={!canLeft}
+                    className="absolute left-1 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 shadow
+                               ring-1 ring-black/10 disabled:opacity-40"
+                  >
+                    ‹
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Scroll right"
+                    onClick={() => scrollLib(1)}
+                    disabled={!canRight}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 shadow
+                               ring-1 ring-black/10 disabled:opacity-40"
+                  >
+                    ›
+                  </button>
                 </div>
               )}
 
@@ -358,7 +410,7 @@ export default function AdminDashboard() {
                     />
                   </div>
                   <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                    Tip: for local assets, put files under <code>/public/images</code> and reference as <code>/images/…</code>.
+                    Tip: keep local assets in <code>/public/images</code> and reference as <code>/images/…</code>.
                   </p>
                 </>
               )}
